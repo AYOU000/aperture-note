@@ -1,0 +1,36 @@
+services:
+  # The Bones
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: your_password_here
+      POSTGRES_DB: aperture_note
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # The Brain
+  agent:
+    build: ./apps/agent
+    ports:
+      - "8000:8000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # Allows Agent to talk to Ollama on your Windows host
+
+  # The Nervous System
+  server:
+    build: ./apps/server
+    ports:
+      - "3001:3001"
+    environment:
+      - DATABASE_URL=postgresql://postgres:your_password_here@db:5432/aperture_note?schema=public
+      - AGENT_URL=http://agent:8000
+    depends_on:
+      - db
+      - agent
+
+volumes:
+  pgdata:

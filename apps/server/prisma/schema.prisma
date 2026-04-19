@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  content     String
+  status      String   @default("todo")
+  createdAt   DateTime @default(now())
+}

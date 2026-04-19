@@ -1,0 +1,38 @@
+# --- System / OS ---
+.DS_Store
+Thumbs.db
+
+# --- Environment & Secrets ---
+# Never push these! They contain your DB passwords and API keys 
+.env
+.env.local
+.env.*.local
+
+# --- Node.js (apps/server & apps/web) ---
+# Dependencies are huge; they should be installed via npm install [cite: 36, 38]
+node_modules/
+dist/
+build/
+npm-debug.log*
+.eslintcache
+
+# --- Python (apps/agent) ---
+# Compiled files and virtual environments [cite: 39, 76]
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.pytest_cache/
+
+# --- Database & Docker ---
+# Prevents pushing your actual database files to GitHub [cite: 8, 31]
+pgdata/
+postgres_data/
+docker-volumes/
+
+# --- IDEs ---
+.vscode/
+.idea/
+*.swp
