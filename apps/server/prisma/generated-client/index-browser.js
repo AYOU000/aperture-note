@@ -129,6 +129,15 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.RefreshTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  userId: 'userId',
+  expiresAt: 'expiresAt',
+  revoked: 'revoked',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.ProjectScalarFieldEnum = {
   id: 'id',
   description: 'description',
@@ -185,6 +194,7 @@ exports.Priority = exports.$Enums.Priority = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  RefreshToken: 'RefreshToken',
   Project: 'Project',
   Task: 'Task',
   Note: 'Note'
