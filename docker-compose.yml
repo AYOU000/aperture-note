@@ -5,12 +5,14 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: your_password_here
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
       POSTGRES_DB: aperture_note
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./apps/server:/app        
+      - /app/node_modules
 
   # The Brain
   agent:
@@ -18,7 +20,7 @@ services:
     ports:
       - "8000:8000"
     extra_hosts:
-      - "host.docker.internal:host-gateway" # Allows Agent to talk to Ollama on your Windows host
+      - "host.docker.internal:host-gateway"
 
   # The Nervous System
   server:
@@ -26,8 +28,10 @@ services:
     ports:
       - "3001:3001"
     environment:
-      - DATABASE_URL=postgresql://postgres:your_password_here@db:5432/aperture_note?schema=public
-      - AGENT_URL=http://agent:8000
+      - DATABASE_URL=${DATABASE_URL} 
+      - AGENT_URL=${AI_AGENT_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - REFRESH_SECRET=${REFRESH_SECRET}
     depends_on:
       - db
       - agent
