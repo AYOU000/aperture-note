@@ -1,7 +1,7 @@
 services:
   # The Bones
   db:
-    image: postgres:16
+    image: ankane/pgvector:v0.5.1
     restart: always
     environment:
       POSTGRES_USER: postgres
