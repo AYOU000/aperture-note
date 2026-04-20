@@ -57,7 +57,7 @@ const existingUser = await prisma.user.findUnique({
   const passwordMatch = await bcrypt.compare(password, existingUser.passwordHash);
   if (passwordMatch) {
     const token = generateJWT({ id: existingUser.id, name:existingUser.name, email });
-    return { data: token, statusCode: 201 }; 
+    return { data: token, statusCode: 200 }; 
     };
     return { data: "Incorrect email or password", statusCode: 401 };
   }
