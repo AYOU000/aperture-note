@@ -3,7 +3,7 @@ WORKDIR /app
 
 # Install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir fastapi uvicorn requests pydantic
+RUN pip install --no-cache-dir fastapi uvicorn requests pydantic python-dotenv
 
 # Copy the code
 COPY . .

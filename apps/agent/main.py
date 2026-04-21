@@ -1,35 +1,29 @@
+from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
-from pydantic import BaseModel
-import requests
-import json
 import uvicorn 
-
+import os
 app = FastAPI()
+load_dotenv()
+AGENT_PORT = int(os.getenv("AGENT_PORT"))
+SERVER_URL = os.getenv("SERVER_URL")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+allowed_origins_str = os.getenv("SERVER_URL")
 
-class Query(BaseModel):
-    prompt: str
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins= allowed_origins_str,  
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 
-@app.post("/generate")
-async def generate_task(query: Query):
-    # 'host.docker.internal' is correct for reaching Ollama on Windows
-    ollama_url = "http://host.docker.internal:11434/api/generate"
-    
-    system_instruction = "Return ONLY a JSON list of 3 tasks based on this goal. Format: [{\"content\": \"task name\"}]"
-    
-    payload = {
-        "model": "llama3.1:8b",
-        "prompt": f"{system_instruction} Goal: {query.prompt}",
-        "stream": False,
-        "format": "json"
-    }
-    
-    try:
-        response = requests.post(ollama_url, json=payload, timeout=30)
-        response.raise_for_status()
-        result = response.json()
-        return json.loads(result['response'])
-    except Exception as e:
-        return {"error": f"Failed to connect to Ollama: {str(e)}"}
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=AGENT_PORT,
+        reload=DEBUG,
+        log_level="debug" if DEBUG else "info"
+    )

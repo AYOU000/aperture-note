@@ -8,7 +8,7 @@ import cookieParser from 'cookie-parser';
 
 dotenv.config();
 const app = express();
-//  Type-safe CORS origin filtering
+
 const corsOrigins = [
   process.env.CLIENT_URL,
   process.env.PYTHON_AGENT_URL,
@@ -16,7 +16,7 @@ const corsOrigins = [
 
 app.use(
   corsMiddleware({
-    origin: corsOrigins.length > 0 ? corsOrigins : true, // Fallback to allow all if no origins set
+    origin: corsOrigins.length > 0 ? corsOrigins : true, 
     credentials: true,
   }),
 );
@@ -33,7 +33,7 @@ export const connectDB = async () => {
     process.exit(1);
   }
 };
-// Health check endpoint for Docker/load balancers
+
 app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });

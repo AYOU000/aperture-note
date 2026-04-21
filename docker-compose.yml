@@ -11,8 +11,6 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./apps/server:/app        
-      - /app/node_modules
 
   # The Brain
   agent:
@@ -21,6 +19,12 @@ services:
       - "8000:8000"
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    environment:
+      - LLM_URL=${LLM_URL} 
+    depends_on:
+      - db
+    volumes:
+      - ./apps/agent:/app  
 
   # The Nervous System
   server:
@@ -35,6 +39,12 @@ services:
     depends_on:
       - db
       - agent
-
+    volumes:
+      - ./apps/server:/app
+      - /app/node_modules
+    command:
+      - sh
+      - -c
+      - "npx prisma db push && npm run dev"
 volumes:
   pgdata:
