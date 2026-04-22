@@ -4,8 +4,9 @@ import morgan from "morgan";
 import * as dotenv from "dotenv";
 import authController from "./controllers/authController";
 import { prisma } from "./lib/prisma";
-import cookieParser from 'cookie-parser';
-
+import cookieParser from "cookie-parser";
+import pythonControllers from "./controllers/pythonControllers";
+import { checkAgentStatus } from "./services/pythonClient";
 dotenv.config();
 const app = express();
 
@@ -13,16 +14,16 @@ const corsOrigins = [
   process.env.CLIENT_URL,
   process.env.PYTHON_AGENT_URL,
 ].filter((origin): origin is string => Boolean(origin));
-
 app.use(
   corsMiddleware({
-    origin: corsOrigins.length > 0 ? corsOrigins : true, 
+    origin: corsOrigins.length > 0 ? corsOrigins : true,
     credentials: true,
   }),
 );
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(cookieParser());
+
 export const connectDB = async () => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -39,6 +40,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/auth", authController);
+app.use("/genrate", pythonControllers);
 
 app.use(
   (
@@ -61,7 +63,14 @@ app.use(
 const bootstrap = async () => {
   try {
     await connectDB();
+    console.log("🔍 Verifying AI Microservice connection...");
+    const isAgentReady = await checkAgentStatus();
 
+    if (!isAgentReady) {
+      console.warn(
+        "❗ System starting without AI capabilities. Check Docker containers.",
+      );
+    }
     app.listen(3001, () => {
       console.log("🚀 Orchestrator running on http://localhost:3001");
     });
