@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
-from app.services.ai_logic import get_project_tasks
+from app.core.generation_logic import get_project_tasks
 
 router = APIRouter()
 

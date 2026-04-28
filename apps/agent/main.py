@@ -4,7 +4,7 @@ from fastapi import FastAPI, Response
 import httpx
 import uvicorn 
 import os
-from app.routers.ai import router as ai_router
+from app.api.generation import router as generation_router
 app = FastAPI()
 load_dotenv()
 AGENT_PORT = int(os.getenv("AGENT_PORT"))
@@ -32,7 +32,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(
-    ai_router,
+    generation_router,
     prefix="/ai",
     tags=["Agent Logic"]
 )
