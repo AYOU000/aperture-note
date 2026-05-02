@@ -1,5 +1,5 @@
 import { api } from "../utils/apiCall";
-import { creatProject, saveGeneratedRoadmap } from "./projectServices";
+import { creatProject, SaveEmbedNote, saveGeneratedRoadmap } from "./projectServices";
 
 export const checkAgentStatus = async () => {
   try {
@@ -34,8 +34,12 @@ export const ask_ai = async ({ userId, userPrompt }: ask_ai_parms) => {
      projectId: project.id ,
      tasks: projectData.project.tasks
      })
+     await SaveEmbedNote({
+      projectId: project.id ,
+      note: projectData.note
+     }) 
     return {
-      data: response.data,
+      data: project,
       statusCode: response.status,
     };
   } catch (error: any) {

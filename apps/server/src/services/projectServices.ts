@@ -1,5 +1,7 @@
+import { api } from "../utils/apiCall";
 import { prisma } from "../lib/prisma";
 import { TaskStatus, Priority } from "@prisma/client"; 
+import pgvector from 'pgvector';
 
 interface creatProjectparms {
   userId: string;
@@ -40,3 +42,44 @@ export const saveGeneratedRoadmap = async ({ projectId, tasks }: saveGeneratedRo
     throw error;
   }
 };
+interface embednotePrams
+{
+  projectId: string;
+  note: {
+    content: string;
+  };
+}
+
+export const SaveEmbedNote = async ({projectId,note}:embednotePrams) =>
+{
+  const content = note.content;
+  if(!projectId || !note)
+  {
+    return { data: { message: "Project ID or note content is not provided"}, statusCode: 400 };
+  }
+  try
+  {
+    const response = await api.post("/embed/notes", {
+      content: content
+    });
+    const embeddingVector = response.data.embedding;
+    const newNote = await prisma.$queryRaw`
+      INSERT INTO "Note" ("id", "content", "projectId", "embedding","createdAt","updatedAt")
+      VALUES (
+        gen_random_uuid(), 
+        ${content}, 
+        ${projectId}, 
+        ${pgvector.toSql(embeddingVector)}::vector,
+        CURRENT_TIMESTAMP,                          
+        CURRENT_TIMESTAMP   
+      )
+      RETURNING *;
+    `;
+    return newNote;
+    }
+  catch (error) {
+    console.error("❌ EmbedNote error:", JSON.stringify(error, null, 2)); 
+    throw error;
+  }
+
+}

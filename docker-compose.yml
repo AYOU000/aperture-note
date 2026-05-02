@@ -21,6 +21,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
+      - JINA_API_KEY=${JINA_API_KEY}
       - GROQ_API_KEY=${GROQ_API_KEY}
       - LLM_MODEL=${LLM_MODEL}
     depends_on:

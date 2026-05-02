@@ -5,6 +5,7 @@ import httpx
 import uvicorn 
 import os
 from app.api.generation import router as generation_router
+from app.api.embed import router as handle_embeding
 load_dotenv()
 app = FastAPI()
 AGENT_PORT = int(os.getenv("AGENT_PORT"))
@@ -41,6 +42,11 @@ app.include_router(
     generation_router,
     prefix="/ai",
     tags=["Agent Logic"]
+)
+app.include_router(
+    handle_embeding,
+    prefix="/embed",
+    tags=["embeding Logic"]
 )
 if __name__ == "__main__":
     print("Server starting...")
