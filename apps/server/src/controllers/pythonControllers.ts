@@ -10,7 +10,7 @@ router.post("/",validateJWT,async (req:extendRequest, res) => {
 try{
   const userId = req?.user;
   const {userPrompt} = req.body;
-  const response = await ask_ai({userId,userPrompt})
+  const response = await ask_ai({userId,userPrompt});
   res.status(response.statusCode).send(response.data);
  }
  catch(err)

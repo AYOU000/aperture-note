@@ -6,3 +6,4 @@ langchain-community
 requests
 python-dotenv
 ollama
+openai>=1.0.0

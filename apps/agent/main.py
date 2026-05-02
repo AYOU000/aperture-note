@@ -5,8 +5,8 @@ import httpx
 import uvicorn 
 import os
 from app.api.generation import router as generation_router
-app = FastAPI()
 load_dotenv()
+app = FastAPI()
 AGENT_PORT = int(os.getenv("AGENT_PORT"))
 SERVER_URL = os.getenv("SERVER_URL")
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
@@ -14,16 +14,22 @@ allowed_origins_str = os.getenv("SERVER_URL")
 @app.get("/health")
 async def health_check():
     try:
+        api_key = os.getenv("GROQ_API_KEY")
+        base_url = os.getenv("LLM_URL", "https://api.groq.com").rstrip("/")
+        if not api_key:
+            return Response(status_code=503, content="Missing API_KEY")
+        health_url = f"{base_url}/openai/v1/models"    
         async with httpx.AsyncClient() as client:
-            llm_url = os.getenv("LLM_URL")
-            response = await client.get(f"{llm_url}/api/tags", timeout=2.0)
-            
+            response = await client.get(
+                health_url,
+                headers={"Authorization": f"Bearer {api_key}"},
+                timeout=60.0
+            ) 
         if response.status_code == 200:
-            return {"status": "healthy", "llm_connection": "connected"}
-        return Response(status_code=503, content="LLM Service Unreachable")
+            return {"status": "healthy", "llm": "connected", "model": "llama-3.3-70b-versatile"}     
+        return Response(status_code=503, content=f"Groq API Error: {response.status_code}")
     except Exception as e:
-        return Response(status_code=503, content=f"Agent Unhealthy: {str(e)}")
-    
+        return Response(status_code=503, content=f"Agent Internal Error: {str(e)}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins= allowed_origins_str,  

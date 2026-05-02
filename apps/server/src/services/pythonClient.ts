@@ -1,10 +1,9 @@
 import { api } from "../utils/apiCall";
-import { date } from "zod";
-
+import { creatProject, saveGeneratedRoadmap } from "./projectServices";
 
 export const checkAgentStatus = async () => {
   try {
-    const response = await api.get('/health', { timeout: 3000 });
+    const response = await api.get("/health", { timeout: 3000 });
     console.log("🤖 AI Agent Status:", response.data.status);
     return true;
   } catch (error) {
@@ -12,25 +11,33 @@ export const checkAgentStatus = async () => {
     return false;
   }
 };
-interface ask_ai_parms
-{
- userId:string;
- userPrompt:string;
+interface ask_ai_parms {
+  userId: string;
+  userPrompt: string;
 }
 export const ask_ai = async ({ userId, userPrompt }: ask_ai_parms) => {
   if (!userId || !userPrompt.trim()) {
-  return { data: { message: "Please enter your goal" }, statusCode: 400 }; 
+    return { data: { message: "Please enter your goal" }, statusCode: 400 };
   }
   try {
-    const response = await api.post('/ai/generate', {
-      userid: userId,    
-      prompt: userPrompt
+    const response = await api.post("/ai/generate", {
+      userid: userId,
+      prompt: userPrompt,
     });
+    const projectData = response.data;
+    const project = await creatProject({
+      userId: userId,
+      title: projectData.project.main_goal,
+      description: projectData.project.summary,
+    });
+    await saveGeneratedRoadmap({
+     projectId: project.id ,
+     tasks: projectData.project.tasks
+     })
     return {
-      data: response.data, 
-      statusCode: response.status 
+      data: response.data,
+      statusCode: response.status,
     };
-
   } catch (error: any) {
     const status = error.response?.status || 500;
     const message = error.response?.data?.message || "failed to generate";

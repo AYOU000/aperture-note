@@ -1,5 +1,5 @@
 services:
-  # The Bones
+  # The Bones (Database)
   db:
     image: ankane/pgvector:v0.5.1
     restart: always
@@ -12,7 +12,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-  # The Brain
+
+  # The Brain (AI Agent)
   agent:
     build: ./apps/agent
     ports:
@@ -20,19 +21,18 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-    - LLM_URL=${LLM_URL}
-    - LLM_MODEL=${LLM_MODEL}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LLM_MODEL=${LLM_MODEL}
     depends_on:
       - db
     volumes:
       - ./apps/agent:/app  
 
-  # The Nervous System
+  # The Nervous System (Backend API)
   server:
     build: ./apps/server
     ports:
       - "3001:3001"
-      - "5555:5555"
     environment:
       - DATABASE_URL=${DATABASE_URL} 
       - AGENT_URL=${AI_AGENT_URL}
@@ -48,6 +48,21 @@ services:
       - sh
       - -c
       - "npx prisma db push && npm run dev"
+
+  # The Window (Prisma Studio Database Viewer)
+  studio:
+    build: ./apps/server # Reuses the server build since it has Prisma installed
+    ports:
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - db
+    volumes:
+      - ./apps/server:/app
+      - /app/node_modules
+    # --browser none is critical; containers don't have browsers to open
+    command: npx prisma studio --browser none --port 5555
 
 volumes:
   pgdata:

@@ -1,17 +1,15 @@
-FROM public.ecr.aws/docker/library/node:20-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
 COPY package*.json ./
-COPY . .
+
+COPY prisma ./prisma/
+
 RUN npm install
 
-RUN npx prisma generate
+COPY . .
 
-
-RUN ./node_modules/.bin/prisma generate
-RUN apk add --no-cache postgresql-client
-RUN npm run dev
 EXPOSE 3001
 
-CMD ["npm", "run", "dev"]
+CMD npx prisma db push && npm run dev

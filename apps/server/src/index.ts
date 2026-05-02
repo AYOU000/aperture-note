@@ -81,22 +81,3 @@ const bootstrap = async () => {
 };
 
 bootstrap();
-
-// app.post('/api/ask-ai', async (req, res) => {
-//   try {
-// const aiResponse = await axios.post('http://agent:8000/generate', req.body);
-//     const tasks = aiResponse.data;
-//     const savedTasks = await Promise.all(
-//       tasks.map((task: any) =>
-//         prisma.task.create({
-//           data: { content: task.content, status: 'todo' }
-//         })
-//       )
-//     );
-
-//     res.json(savedTasks);
-//   } catch (error) {
-//     console.error("Server Error:", error);
-//     res.status(500).json({ error: "Failed to generate or save tasks" });
-//   }
-// });
